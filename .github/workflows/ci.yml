@@ -13,16 +13,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install GCC
+      - name: Install GCC and Make
         run: sudo apt-get update && sudo apt-get install -y build-essential
 
       - name: Build
         run: |
-          gcc -O2 -Wall -Wextra -std=c11 biblioteca.c -o biblioteca
+          make all
           file ./biblioteca || true
 
-      - name: Upload artifact (binary)
+      - name: Run unit tests
+        run: make test
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: biblioteca-linux
-          path: ./biblioteca
+          name: build-outputs
+          path: |
+            biblioteca
+            tests/bin/test
