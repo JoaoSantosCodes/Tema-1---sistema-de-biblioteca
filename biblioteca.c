@@ -204,6 +204,7 @@ static int carregar_csv(const char *caminho, Livro **livros_out, int *quantidade
     return 1;
 }
 
+#ifndef BIBLIOTECA_NO_MAIN
 int main(void) {
     setlocale(LC_ALL, "");
 
@@ -300,3 +301,4 @@ int main(void) {
     free(livros);
     return 0;
 }
+#endif // BIBLIOTECA_NO_MAIN
