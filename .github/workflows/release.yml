@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag (ex.: v1.0.0) a ser publicada"
+        required: true
+        default: "v1.0.0"
+      release_name:
+        description: "Nome do release (opcional)"
+        required: false
+      generate_notes:
+        description: "Gerar notas de release automaticamente"
+        type: boolean
+        required: false
+        default: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Selecionar ref da tag (apenas quando workflow_dispatch)
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          git fetch --tags --force
+          git checkout "tags/${{ inputs.tag_name }}"
+
+      - name: Instalar GCC e Make
+        run: sudo apt-get update && sudo apt-get install -y build-essential
+
+      - name: Build e testes
+        run: |
+          make all
+          make test
+          file ./biblioteca || true
+          ls -lah ./biblioteca ./tests/bin/test || true
+
+      - name: Criar Release no GitHub e anexar binários
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event_name == 'workflow_dispatch' && inputs.tag_name || github.ref_name }}
+          name: ${{ github.event_name == 'workflow_dispatch' && (inputs.release_name || inputs.tag_name) || github.ref_name }}
+          generate_release_notes: ${{ github.event_name == 'workflow_dispatch' && inputs.generate_notes || true }}
+          files: |
+            biblioteca
+            tests/bin/test
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
