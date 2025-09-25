@@ -1,0 +1,26 @@
+# Compilação
+*.exe
+*.out
+*.obj
+*.o
+*.pdb
+*.ilk
+
+# Logs
+*.log
+
+# Pastas de build
+build/
+dist/
+bin/
+obj/
+
+# IDEs/Tooling
+.vscode/
+.vs/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Cache
+*.cache
