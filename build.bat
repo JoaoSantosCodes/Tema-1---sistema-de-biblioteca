@@ -9,6 +9,7 @@ if not exist biblioteca.c (
   exit /b 1
 )
 
+echo Compilando biblioteca.c (menu interativo v1.0.0)...
 %CC% %CFLAGS% biblioteca.c -o biblioteca.exe
 if errorlevel 1 (
   echo [ERRO] Falha na compilacao.

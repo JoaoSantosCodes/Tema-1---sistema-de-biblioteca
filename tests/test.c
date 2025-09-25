@@ -83,12 +83,39 @@ static void test_csv_roundtrip(void) {
     remove(path);
 }
 
+static void test_csv_campos_especiais(void) {
+    const char *path = "test_livros_escapes.csv";
+    Livro in[3] = {
+        {"Nome;Com;PontoEVirgula", "Autor;X", "Edit;ora", 10},
+        {"Nome com \"aspas\" internas", "Autor \"Y\"", "Editora \"Z\"", 20},
+        {" Espaços nas pontas ", "  Autor  ", " Editora ", 30}
+    };
+    int ok = salvar_csv(path, in, 3);
+    expect_int("salvar_csv (escapes)", ok, 1);
+
+    Livro *out = NULL; int qtd = 0;
+    ok = carregar_csv(path, &out, &qtd);
+    expect_int("carregar_csv ok (escapes)", ok, 1);
+    expect_int("carregar_csv qtd (escapes)", qtd, 3);
+    if (ok && qtd == 3 && out) {
+        for (int i = 0; i < 3; ++i) {
+            expect_str("escapes nome", out[i].nome, in[i].nome);
+            expect_str("escapes autor", out[i].autor, in[i].autor);
+            expect_str("escapes editora", out[i].editora, in[i].editora);
+            expect_int("escapes edicao", out[i].edicao, in[i].edicao);
+        }
+        free(out);
+    }
+    remove(path);
+}
+
 int main(void) {
     printf("==== Testes biblioteca ====/\n");
 
     test_contains_substring_ci();
     test_ordenação();
     test_csv_roundtrip();
+    test_csv_campos_especiais();
 
     printf("\nTotal: %d, Falhas: %d\n", tests_run, tests_failed);
     return tests_failed ? 1 : 0;
